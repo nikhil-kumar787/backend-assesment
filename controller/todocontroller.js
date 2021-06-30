@@ -1,5 +1,5 @@
 const Todo = require('../Models/Todo')
-const express = require('express');
+
 const User = require('../Models/User')
 
 
@@ -13,9 +13,11 @@ exports.getalltodo = async (req, res) => {
 exports.gettodoById = async (req, res) => {
     let id = req.params.id;
 
-    const todo = await Todo.find({ _id: id });
+    const {page=1, limit=10} = req.query;
 
-    res.status(200).json({ todo });
+    const todo = await Todo.find({ userId: id }).limit(limit * 1).skip((page -1) * limit )
+
+    res.status(200).json({ total:todo.length,todo,pageNo:page});
 
 }
 

@@ -7,8 +7,34 @@ const bcrypt = require('bcryptjs')
 require('./passport')
 
 const todoRoute = require('./router/todorouter')
+const todoComment = require('./router/commentrouter')
 
 const app = express()
+
+let startDate = new Date();
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const day = startDate.getDate();
+const month = months[startDate.getMonth()]; // 0 to 11 index
+const month1 = startDate.getMonth();
+const year = startDate.getFullYear();
+const fullDate = day + " " + month + " " + year;
+const currentDate = month1 + 1 + "/" + day + "/" + year;
+
+const active_user = 0;
+
 genToken = user => {
   return jwt.sign({
     iss: 'Joan_Louji',
@@ -27,71 +53,84 @@ app.get("/", function (req, res) {
 app.get("/login", function (req, res) {
   res.render("login");
 });
+app.post('/login', async function (req, res, next) {
+  const { email, password } = req.body;
+
+  //Check If User Exists
+  await User.findOne({ email: email }).exec((err, user) => {
+
+    if (user) {
+
+      bcrypt.compare(password, user.password, (err, isMatch) => {
+
+        if (err) throw err;
+        if (isMatch) {
+          console.log(user._id)
+          const token = genToken(user)
+          res.status(200).json({ token, userid: user._id })
+
+
+
+        }
+        else {
+          return res.status(403).json({ message: "Wrong Password" });
+        }
+      })
+      // return res.status(403).json({ error: 'Email is already in use'});
+
+    }
+  })
+
+})
 app.post('/register', async function (req, res, next) {
   const { email, password } = req.body;
-  
-  //Check If User Exists
-  await User.findOne({ email: email }).exec((err,user) => {
-  
-  if (user) {
-    
-    bcrypt.compare(password, user.password, (err,isMatch) => {
-      
+  const newUser = new User({ email, password, date: currentDate })
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(newUser.password, salt, (err, hash) => {
       if (err) throw err;
-      if (isMatch) {
-        console.log(user._id)
-        const token = genToken(user)
-         res.status(200).json({token,userid:user._id})
-         
-       
+      newUser.password = hash;
+      newUser.save()
 
-      }
-      else {
-        return res.status(403).json( {message:"Wrong Password"});
-      }
-  })
-    // return res.status(403).json({ error: 'Email is already in use'});
-    
-  }
-  })
-  
- 
-  const newUser = new User({ email, password})
-  bcrypt.genSalt(10,(err,salt) => {
-    bcrypt.hash(newUser.password, salt, (err,hash) => {
-        if (err) throw err;
-        newUser.password = hash;
-        newUser.save()
+        .then(user => {
+          console.log(newUser)
 
-        .then(user=> {
-          const token = genToken(newUser)
-  res.status(200).json({token})
-            // return done(null,user);
+          res.status(200).json({ message: "User Registered Successfully" })
+
         })
-        // .catch(err => {
-        //     // return done(null,false, {message: err});
-        //     res.status(403).json({ err: 'Error'});
-        // })
+
     })
-})
-  // await newUser.save()
-  // // Generate JWT token
-  // const token = genToken(newUser)
-  // res.status(200).json({token})
+  })
+
+
+
 });
 
-app.get('/secret', passport.authenticate('jwt',{session: false}),(req,res,next)=>{
-    res.json("Secret Data")
+
+app.get('/registered_user', async (req,res) =>{
+  await User.find({date:currentDate}).exec((err,user) => {
+    if(user) {
+      res.status(200).json({todayRegistered:user.length})
+    } if (err) {
+      res.status(400).json({message:"No User Registered on today"})
+    } 
   })
+})
 
-  app.use('/todo',todoRoute)
 
-mongoose.connect("mongodb+srv://nikhilkumar:bhQWUrUfnDq0aaKw@cluster0.g2p2u.mongodb.net/Test?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
-mongoose.connection.once('open',function(){
+
+app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res, next) => {
+  res.json("Secret Data")
+})
+
+app.use('/todo', todoRoute)
+app.use('/comment', todoComment)
+
+mongoose.connect("mongodb+srv://nikhilkumar:bhQWUrUfnDq0aaKw@cluster0.g2p2u.mongodb.net/Test?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connection.once('open', function () {
   console.log('Connected to Mongo');
-}).on('error',function(err){
+}).on('error', function (err) {
   console.log('Mongo Error', err);
 })
-app.listen(5000,()=>{
-  console.log('Serve is up and running at the port 5000')
+app.listen(5000, () => {
+  console.log('Server is up and running at the port 5000')
 })
