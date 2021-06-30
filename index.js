@@ -125,7 +125,7 @@ app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res, 
 app.use('/todo', todoRoute)
 app.use('/comment', todoComment)
 
-mongoose.connect("mongodb+srv://nikhilkumar:bhQWUrUfnDq0aaKw@cluster0.g2p2u.mongodb.net/Test?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_DB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connection.once('open', function () {
   console.log('Connected to Mongo');
 }).on('error', function (err) {
