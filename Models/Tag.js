@@ -1,5 +1,5 @@
 const  mongoose = require('mongoose')
-const CommentSchema = new mongoose.Schema({
+const TagSchema = new mongoose.Schema({
   tag_title: {
     type: String,
     required: true,
@@ -8,7 +8,14 @@ const CommentSchema = new mongoose.Schema({
   posted_by: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+  },
+  todo_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Todo",
+  },
+  category: {
+    type: String,
   }
 
 },{timestamps: true})
-module.exports = mongoose.model('Comment',CommentSchema)
+module.exports = mongoose.model('Tag',TagSchema)

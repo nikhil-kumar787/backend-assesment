@@ -11,6 +11,7 @@ require('./passport')
 const todoRoute = require('./router/todorouter')
 const todoComment = require('./router/commentrouter')
 const todoActive = require('./router/activerouter')
+const todoTag = require('./router/tagrouter')
 const ActiveUser = require('./Models/ActiveUser')
 
 const app = express()
@@ -149,6 +150,7 @@ app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res, 
 app.use('/todo', todoRoute)
 app.use('/comment', todoComment)
 app.use('/activeuser', todoActive)
+app.use('/tag', todoTag)
 
 mongoose.connect(process.env.MONGO_DB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connection.once('open', function () {

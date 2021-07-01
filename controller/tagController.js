@@ -1,23 +1,24 @@
-const Comment = require('../Models/Comment')
+const Tag = require('../Models/Tag')
 const User = require('../Models/User')
 
 
-exports.addcomment = async (req, res) => {
+exports.addtag = async (req, res) => {
 
 
-    const { comments, posted_by,todo_id } = req.body;
+    const { tag_title, posted_by,todo_id,category } = req.body;
     
 
     await User.find({ _id: posted_by }).exec((err, user) => {
 
         if (user) {
-            const comment = new Comment({
-               comments,
+            const tag = new Tag({
+                tag_title,
                posted_by,
-               todo_id
+               todo_id,
+               category
             });
 
-            comment.save((error, todo) => {
+            tag.save((error, todo) => {
                 if (error) {
                     return res.status(400).json({
                         message: "Something went wrong",
@@ -25,11 +26,11 @@ exports.addcomment = async (req, res) => {
 
                 }
 
-                if (comment) {
+                if (tag) {
 
 
                     return res.status(201).json({
-                        message: "Comment added succefully"
+                        message: "Tag added succefully"
                     });
                 }
 
@@ -43,10 +44,10 @@ exports.addcomment = async (req, res) => {
 }
 
 
-exports.getcommentById = async (req, res) => {
+exports.gettagById = async (req, res) => {
     let id = req.params.id;
 
-    const comment = await Comment.find({ posted_by: id }).exec((err,usr) => {
+    const tag = await Tag.find({ todo_id: id }).exec((err,usr) => {
         if(usr) {
             res.status(200).json({ usr });
         }
@@ -56,15 +57,16 @@ exports.getcommentById = async (req, res) => {
 
 }
 
-exports.updatecomment = async (req, res) => {
+exports.updatetag = async (req, res) => {
     let id = req.params.id;
-    const { comments } =
+    const { tag_title ,category} =
         req.body;
-    const comment = await Comment.findOneAndUpdate(
+    const tag = await Tag.findOneAndUpdate(
         { _id: id },
         {
             $set: {
-                comments: comments
+                tag_title: tag_title,
+                category: category
             },
         },
         { new: true }
@@ -80,13 +82,13 @@ exports.updatecomment = async (req, res) => {
         });
 };
 
-exports.deletecomment = async (req, res) => {
+exports.deletetag = async (req, res) => {
     let id = req.params.id;
 
-    const comment = await Comment.findOneAndDelete({ _id: id });
+    const tag = await Tag.findOneAndDelete({ _id: id });
 
-    if (comment) {
-        res.status(201).json({ message: "Comment removed" });
+    if (tag) {
+        res.status(201).json({ message: "Tag removed" });
     } else {
         res.status(400).json({ message: "Something went wrong" });
     }

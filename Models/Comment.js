@@ -8,7 +8,11 @@ const CommentSchema = new mongoose.Schema({
   posted_by: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-  }
+  },
+  todo_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Todo",
+  },
 
 },{timestamps: true})
 module.exports = mongoose.model('Comment',CommentSchema)
