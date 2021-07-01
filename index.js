@@ -4,12 +4,17 @@ const passport = require('passport')
 const User = require('./Models/User')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs')
+const env = require('dotenv')
+
 require('./passport')
 
 const todoRoute = require('./router/todorouter')
 const todoComment = require('./router/commentrouter')
+const todoActive = require('./router/activerouter')
+const ActiveUser = require('./Models/ActiveUser')
 
 const app = express()
+env.config();
 
 let startDate = new Date();
 const months = [
@@ -34,6 +39,7 @@ const fullDate = day + " " + month + " " + year;
 const currentDate = month1 + 1 + "/" + day + "/" + year;
 
 const active_user = 0;
+console.log(typeof(day))
 
 genToken = user => {
   return jwt.sign({
@@ -61,13 +67,31 @@ app.post('/login', async function (req, res, next) {
 
     if (user) {
 
-      bcrypt.compare(password, user.password, (err, isMatch) => {
+      bcrypt.compare(password, user.password, async (err, isMatch) => {
 
         if (err) throw err;
         if (isMatch) {
           console.log(user._id)
           const token = genToken(user)
-          res.status(200).json({ token, userid: user._id })
+          await ActiveUser.find({userId:user._id}).exec((err,usr) => {
+            if(usr.length == 0){
+              console.log("Active user block",usr.length)
+              
+              const activeuser = new ActiveUser({
+                day:day,
+                month:month,
+                userId:user._id
+              })
+              activeuser.save().then((active) => {
+                res.status(200).json({ token, userid: user._id })
+              })
+            }
+            else {
+               res.status(200).json({ token, userid: user._id })
+            }
+          
+          })
+          
 
 
 
@@ -124,6 +148,7 @@ app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res, 
 
 app.use('/todo', todoRoute)
 app.use('/comment', todoComment)
+app.use('/activeuser', todoActive)
 
 mongoose.connect(process.env.MONGO_DB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.connection.once('open', function () {
