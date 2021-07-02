@@ -77,7 +77,7 @@ exports.addtodo = async (req, res) => {
 
 exports.updatetodo = async (req, res) => {
     let id = req.params.id;
-    const { username, title, category, status } =
+    const { username, title, category } =
         req.body;
     const todo = await Todo.findOneAndUpdate(
         { _id: id },
@@ -86,7 +86,7 @@ exports.updatetodo = async (req, res) => {
                 username: username,
                 title: title,
                 category: category,
-                status: status
+                
             },
         },
         { new: true }
@@ -116,3 +116,76 @@ exports.deletetodo = async (req, res) => {
 
 
 }
+
+
+exports.updateStatus = async (req,res) => {
+
+   const {todoid} = req.body; 
+   await Todo.find({_id:todoid}).exec(async (err, update) => {
+      
+      if(update[0].status == true) {
+          res.send("Already task completed")
+      }
+      else {
+        await Todo.findOneAndUpdate(
+            { _id: todoid },
+            {
+                $set: {
+                   status: true,
+                
+                },
+            },
+            { new: true }
+        ) .exec()
+        .then(async (result) => {
+            
+            console.log(result.userId)
+            await User.findOneAndUpdate(
+                { _id: result.userId },
+                {$inc : {'task_count' : 1}},
+                { new: true }
+            )
+             res.status(200).json({ message: result });
+        })
+        .catch((e) => {
+            console.log(e);
+             res.status(400).json({ error: e });
+        });
+      }
+   })
+        
+
+
+
+}
+
+exports.maxCount = async (req,res) => {
+   
+
+//     User.findOne({ field1 : 1 }).sort(task_count, 1).run( function(err, doc) {
+//         if(doc) {
+//             res.status(200).json({maxno:doc})
+//         }
+//    });
+// const maxQuery = await User.find({}).sort({ task_count: -1 }).limit(1).then(user => user[0].task_count);
+// console.log(maxQuery)
+// res.send(maxQuery);
+
+
+var findQuery = await User.find().sort({task_count : -1}).limit(2);
+
+findQuery.exec(function(err, maxResult){
+    if (err) {return err;}
+      
+    if(maxResult) {
+        console.log(maxResult)
+        res.status(200).json({maxResult})
+    }
+    // do stuff with maxResult[0]
+
+});
+
+}
+
+
+

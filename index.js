@@ -12,6 +12,8 @@ const todoRoute = require('./router/todorouter')
 const todoComment = require('./router/commentrouter')
 const todoActive = require('./router/activerouter')
 const todoTag = require('./router/tagrouter')
+const todoDownload = require('./router/downloadrouter')
+const todoView = require('./router/viewrouter')
 const ActiveUser = require('./Models/ActiveUser')
 
 const app = express()
@@ -147,12 +149,31 @@ app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res, 
   res.json("Secret Data")
 })
 
+
+/////////TO find Users with maximum task completion using sorting technique to find it////////////////
+
+
+app.get('/count', async(req,res) => {
+  var findQuery = await User.find().sort({task_count : -1}).limit().exec((err, maxResult) => {
+    if (err) {return err;}
+      
+    if(maxResult) {
+        console.log(maxResult)
+        res.status(200).json({maxResult:maxResult})
+    }
+    // do stuff with maxResult[0]
+
+});
+})
+
 app.use('/todo', todoRoute)
 app.use('/comment', todoComment)
 app.use('/activeuser', todoActive)
 app.use('/tag', todoTag)
+app.use('/excel', todoDownload)
+app.use('/view', todoView)
 
-mongoose.connect(process.env.MONGO_DB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGO_DB_URI, { useNewUrlParser: true, useUnifiedTopology: true,useFindAndModify:false });
 mongoose.connection.once('open', function () {
   console.log('Connected to Mongo');
 }).on('error', function (err) {

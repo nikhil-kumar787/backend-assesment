@@ -11,6 +11,11 @@ const UserSchema = new mongoose.Schema({
   date:{
   type: String,
   required: true, 
+  },
+  task_count: {
+    type: Number,
+    default: 0
   }
+
 })
 module.exports = mongoose.model('User',UserSchema)
