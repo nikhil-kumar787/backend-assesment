@@ -19,6 +19,13 @@ const ActiveUser = require('./Models/ActiveUser')
 const app = express()
 env.config();
 
+
+var Publishable_Key = process.env.publishablekey
+var Secret_Key = process.env.secretkey
+
+const stripe = require('stripe')(Secret_Key) 
+
+
 let startDate = new Date();
 const months = [
   "January",
@@ -56,7 +63,10 @@ app.use(express.json())
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.get("/", function (req, res) {
-  res.render("home");
+  res.render('home', { 
+    key: Publishable_Key 
+    }) 
+  // res.render("home");
 });
 
 app.get("/login", function (req, res) {
@@ -149,6 +159,39 @@ app.get('/secret', passport.authenticate('jwt', { session: false }), (req, res, 
   res.json("Secret Data")
 })
 
+
+app.post('/payment', function(req, res){ 
+
+  // Moreover you can take more details from user 
+  // like Address, Name, etc from form 
+  stripe.customers.create({ 
+      email: req.body.stripeEmail, 
+      source: req.body.stripeToken, 
+      name: 'Gautam Sharma', 
+      address: { 
+          line1: 'TC 9/4 Old MES colony', 
+          postal_code: '110092', 
+          city: 'New Delhi', 
+          state: 'Delhi', 
+          country: 'India', 
+      } 
+  }) 
+  .then((customer) => { 
+
+      return stripe.charges.create({ 
+          amount: 7000,    // Charing Rs 25 
+          description: 'Web Development Product', 
+          currency: 'USD', 
+          customer: customer.id 
+      }); 
+  }) 
+  .then((charge) => { 
+      res.send("Success") // If no error occurs 
+  }) 
+  .catch((err) => { 
+      res.send(err)    // If some error occurs 
+  }); 
+}) 
 
 /////////TO find Users with maximum task completion using sorting technique to find it////////////////
 

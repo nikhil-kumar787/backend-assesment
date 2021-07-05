@@ -6,8 +6,9 @@ const excel = require("exceljs");
 
 const download = (req, res) => {
   User.find().then((objs) => {
-   
-    let user = [];
+    Todo.find({userId: objs._id}).then((todos) => {
+    //  console.log("todos:",todos)
+     let user = [];
     let todo = [];
     
     objs.forEach((obj) => {
@@ -21,7 +22,20 @@ const download = (req, res) => {
         
      
     });
-    console.log(user)
+    todos.forEach((to) => {
+      // console.log(to)
+      todo.push({
+        todo_id: to._id,
+        title: to.title,
+        status: to.status,
+        category:to.category
+        
+      });
+        
+     
+    });
+    // console.log(user)
+   console.log(user)
 
     let workbook = new excel.Workbook();
     let worksheet = workbook.addWorksheet("User");
@@ -34,7 +48,7 @@ const download = (req, res) => {
       { header: "Title", key: "title", width: 25 },
       { header: "Status", key: "status", width: 25 },
       { header: "Category", key: "category", width: 25 },
-    //   { header: "Published", key: "published", width: 10 },
+    
     ];
 
     // Add Array Rows
@@ -53,6 +67,8 @@ const download = (req, res) => {
     return workbook.xlsx.write(res).then(function () {
       res.status(200).end();
     });
+    })
+    
   });
 };
 

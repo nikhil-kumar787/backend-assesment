@@ -16,10 +16,12 @@
     "exceljs": "^4.2.1",
     "express": "^4.17.1",
     "install": "^0.13.0",
+    "instamojo-nodejs": "0.0.5",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.0",
     "nodemon": "^2.0.9",
     "passport": "^0.4.1",
-    "passport-jwt": "^4.0.0"
+    "passport-jwt": "^4.0.0",
+    "stripe": "^8.160.0"
   }
 }

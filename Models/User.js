@@ -15,7 +15,10 @@ const UserSchema = new mongoose.Schema({
   task_count: {
     type: Number,
     default: 0
+  },
+  todo_count:{
+    type: Number,
+    default: 0
   }
-
 })
 module.exports = mongoose.model('User',UserSchema)

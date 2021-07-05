@@ -19,13 +19,13 @@ exports.viewtodoByUser = async (req, res) => {
         else {
             await View.findOneAndUpdate(
                 { _id: view._id },
-                {$inc : {'views' : 1}},
+               
                 {
                     $set: {
-                        userId: userId,
+                        
                         todo_id: todo_id,
                        
-                    },
+                    } ,
                 },
                 { new: true }
             )

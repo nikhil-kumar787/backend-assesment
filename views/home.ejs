@@ -1,5 +1,25 @@
-<h1>This is home page</h1>
+<!-- <h1>This is home page</h1>
  
 <li><a href="/register">Sign up!!</a></li>
 <li><a href="/login">Login</a></li>
-<li><a href="/logout">Logout</a></li>
+<li><a href="/logout">Logout</a></li> -->
+
+<!DOCTYPE html> 
+<html> 
+<title>Stripe Payment Demo</title> 
+<body> 
+    <h3>Welcome to Payment Gateway</h3> 
+    <form action="payment" method="POST"> 
+    <script
+        src="//checkout.stripe.com/v2/checkout.js"
+        class="stripe-button"
+        data-key="<%= key %>" 
+        data-amount="7000" 
+        data-currency="usd" 
+        data-name="Gautam Sharma" 
+        data-description="Buy React.js Complete Course" 
+        data-locale="auto" > 
+        </script> 
+    </form> 
+</body> 
+</html>
