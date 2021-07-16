@@ -225,6 +225,6 @@ mongoose.connection.once('open', function () {
 }).on('error', function (err) {
   console.log('Mongo Error', err);
 })
-app.listen(5000, () => {
-  console.log('Server is up and running at the port 5000')
-})
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
+});
