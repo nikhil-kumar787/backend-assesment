@@ -5,6 +5,7 @@ const User = require('./Models/User')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs')
 const env = require('dotenv')
+const cors = require('cors');
 
 require('./passport')
 
@@ -50,6 +51,8 @@ const currentDate = month1 + 1 + "/" + day + "/" + year;
 
 const active_user = 0;
 console.log(typeof(day))
+
+app.use(cors());
 
 genToken = user => {
   return jwt.sign({
