@@ -19,6 +19,14 @@ const UserSchema = new mongoose.Schema({
   todo_count:{
     type: Number,
     default: 0
-  }
+  },
+  status: {
+    type: String, 
+    enum: ['Pending', 'Active'],
+    default: 'Pending'
+  },
+  confirmationCode: { 
+    type: String, 
+    unique: true },
 })
 module.exports = mongoose.model('User',UserSchema)

@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs')
 const env = require('dotenv')
 const cors = require('cors');
 
+
 require('./passport')
 
 const todoRoute = require('./router/todorouter')
@@ -16,6 +17,7 @@ const todoTag = require('./router/tagrouter')
 const todoDownload = require('./router/downloadrouter')
 const todoView = require('./router/viewrouter')
 const ActiveUser = require('./Models/ActiveUser')
+const nodemailer = require("./config/nodemailer.config");
 
 const app = express()
 env.config();
@@ -25,6 +27,7 @@ var Publishable_Key = process.env.publishablekey
 var Secret_Key = process.env.secretkey
 
 const stripe = require('stripe')(Secret_Key) 
+
 
 
 let startDate = new Date();
@@ -48,6 +51,7 @@ const month1 = startDate.getMonth();
 const year = startDate.getFullYear();
 const fullDate = day + " " + month + " " + year;
 const currentDate = month1 + 1 + "/" + day + "/" + year;
+const secret= process.env.secret;
 
 const active_user = 0;
 console.log(typeof(day))
@@ -123,8 +127,10 @@ app.post('/login', async function (req, res, next) {
 
 })
 app.post('/register', async function (req, res, next) {
+  
   const { email, password } = req.body;
-  const newUser = new User({ email, password, date: currentDate })
+  const token = jwt.sign({ email: email }, secret);
+  const newUser = new User({ email, password, date: currentDate,confirmationCode: token})
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(newUser.password, salt, (err, hash) => {
       if (err) throw err;
@@ -134,7 +140,17 @@ app.post('/register', async function (req, res, next) {
         .then(user => {
           console.log(newUser)
 
-          res.status(200).json({ message: "User Registered Successfully" })
+          // res.status(200).json({ message: "User Registered Successfully" })
+          res.send({
+            message:
+              "User was registered successfully! Please check your email",
+          });
+          nodemailer.sendConfirmationEmail(
+            
+            newUser.email,
+            newUser.confirmationCode
+          );
+          res.redirect("/");
 
         })
 
