@@ -41,19 +41,19 @@ exports.addtodo = async (req, res) => {
 
             });
 
-            todo.save((error, todo) => {
-                if (error) {
-                    return res.status(400).json({
-                        message: "Something went wrong",
+            todo.save((todo, error) => {
+                if (todo) {
+                    return res.status(201).json({
+                        message: "Successfuuly added to todo",
                     });
 
                 }
 
-                if (todo) {
+                if (error) {
 
 
-                    return res.status(201).json({
-                        message: "Successfully addded a Todo"
+                    return res.status(400).json({
+                        message: "Something went wrong"
                     });
                 }
 
