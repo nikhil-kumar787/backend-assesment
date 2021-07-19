@@ -13,19 +13,19 @@ exports.getalltodo = async (req, res) => {
 exports.gettodoById = async (req, res) => {
     let id = req.params.id;
 
-    const {page=1, limit=10} = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
-    const todo = await Todo.find({ userId: id }).limit(limit * 1).skip((page -1) * limit )
+    const todo = await Todo.find({ userId: id }).limit(limit * 1).skip((page - 1) * limit)
 
-    res.status(200).json({ total:todo.length,todo,pageNo:page});
+    res.status(200).json({ total: todo.length, todo, pageNo: page });
 
 }
 
 exports.addtodo = async (req, res) => {
     // req.headers.authorization = `Bearer ` + req.body.token
-//    const jwtToken = req.body.token;
-//    console.log(jwtToken)
-//  headers['Authorization'] = 'Bearer ' + jwtToken
+    //    const jwtToken = req.body.token;
+    //    console.log(jwtToken)
+    //  headers['Authorization'] = 'Bearer ' + jwtToken
 
     const { userid, title, category } = req.body;
     console.log(userid)
@@ -35,33 +35,22 @@ exports.addtodo = async (req, res) => {
 
         if (user) {
             const todo = new Todo({
-                userId:userid,
+                userId: userid,
                 title,
                 category,
 
             });
 
-            todo.save((todo, error) => {
-                if (todo) {
-                    return res.status(201).json({
-                        message: "Successfuuly added to todo",
-                    });
-
-                }
-
-                if (error) {
+            todo.save().then(user => {
 
 
-                    return res.status(400).json({
-                        message: "Something went wrong"
-                    });
-                }
+                res.status(200).json({ message: "Todo Added Successfully" })
 
-            });
+
+            })
+
 
         }
-
-
     })
 
 
@@ -86,7 +75,7 @@ exports.updatetodo = async (req, res) => {
                 username: username,
                 title: title,
                 category: category,
-                
+
             },
         },
         { new: true }
@@ -118,72 +107,72 @@ exports.deletetodo = async (req, res) => {
 }
 
 
-exports.updateStatus = async (req,res) => {
+exports.updateStatus = async (req, res) => {
 
-   const {todoid} = req.body; 
-   await Todo.find({_id:todoid}).exec(async (err, update) => {
-      
-      if(update[0].status == true) {
-          res.send("Already task completed")
-      }
-      else {
-        await Todo.findOneAndUpdate(
-            { _id: todoid },
-            {
-                $set: {
-                   status: true,
-                
+    const { todoid } = req.body;
+    await Todo.find({ _id: todoid }).exec(async (err, update) => {
+
+        if (update[0].status == true) {
+            res.send("Already task completed")
+        }
+        else {
+            await Todo.findOneAndUpdate(
+                { _id: todoid },
+                {
+                    $set: {
+                        status: true,
+
+                    },
                 },
-            },
-            { new: true }
-        ) .exec()
-        .then(async (result) => {
-            
-            console.log(result.userId)
-            await User.findOneAndUpdate(
-                { _id: result.userId },
-                {$inc : {'task_count' : 1}},
                 { new: true }
-            )
-             res.status(200).json({ message: result });
-        })
-        .catch((e) => {
-            console.log(e);
-             res.status(400).json({ error: e });
-        });
-      }
-   })
-        
+            ).exec()
+                .then(async (result) => {
+
+                    console.log(result.userId)
+                    await User.findOneAndUpdate(
+                        { _id: result.userId },
+                        { $inc: { 'task_count': 1 } },
+                        { new: true }
+                    )
+                    res.status(200).json({ message: result });
+                })
+                .catch((e) => {
+                    console.log(e);
+                    res.status(400).json({ error: e });
+                });
+        }
+    })
+
 
 
 
 }
 
-exports.maxCount = async (req,res) => {
-   
-
-//     User.findOne({ field1 : 1 }).sort(task_count, 1).run( function(err, doc) {
-//         if(doc) {
-//             res.status(200).json({maxno:doc})
-//         }
-//    });
-// const maxQuery = await User.find({}).sort({ task_count: -1 }).limit(1).then(user => user[0].task_count);
-// console.log(maxQuery)
-// res.send(maxQuery);
+exports.maxCount = async (req, res) => {
 
 
-var findQuery = await User.find().sort({task_count : -1}).limit(2);
+    //     User.findOne({ field1 : 1 }).sort(task_count, 1).run( function(err, doc) {
+    //         if(doc) {
+    //             res.status(200).json({maxno:doc})
+    //         }
+    //    });
+    // const maxQuery = await User.find({}).sort({ task_count: -1 }).limit(1).then(user => user[0].task_count);
+    // console.log(maxQuery)
+    // res.send(maxQuery);
 
-findQuery.exec(function(err, maxResult){
-    if (err) {return err;}
-      
-    if(maxResult) {
-        console.log(maxResult)
-        res.status(200).json({maxResult})
-    }
-    // do stuff with maxResult[0]
 
-});
+    var findQuery = await User.find().sort({ task_count: -1 }).limit(2);
+
+    findQuery.exec(function (err, maxResult) {
+        if (err) { return err; }
+
+        if (maxResult) {
+            console.log(maxResult)
+            res.status(200).json({ maxResult })
+        }
+        // do stuff with maxResult[0]
+
+    });
 
 }
 
