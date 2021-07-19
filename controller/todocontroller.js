@@ -34,6 +34,7 @@ exports.addtodo = async (req, res) => {
     await User.find({ _id: userid }).exec((err, user) => {
 
         if (user) {
+
             const todo = new Todo({
                 userId: userid,
                 title,
@@ -50,6 +51,9 @@ exports.addtodo = async (req, res) => {
             })
 
 
+        }
+        if(err) {
+            res.status(400).json({ message: "Something went wrong" })
         }
     })
 
